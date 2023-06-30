@@ -18,6 +18,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>user-service</module>
+        <module>restaurant-service</module>
     </modules>
 
     <properties>
