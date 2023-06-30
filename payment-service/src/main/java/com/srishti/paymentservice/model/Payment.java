@@ -19,8 +19,9 @@ public class Payment {
     @Id
     private String id;
     private Long timestamp;
-    private BigDecimal amount;
+    private Double amount;
     private CreditCardInfo creditCardInfo;
     private String orderId;
+    private PaymentStatus paymentStatus;
 
 }

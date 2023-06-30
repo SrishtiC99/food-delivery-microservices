@@ -1,6 +1,5 @@
 package com.srishti.paymentservice.controller;
 
-import com.srishti.paymentservice.dto.PaymentResponse;
 import com.srishti.paymentservice.model.Payment;
 import com.srishti.paymentservice.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,7 @@ public class PaymentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PaymentResponse makePayment(@RequestBody Payment payment) {
-        return paymentService.createPayment(payment);
+    public String pay(@RequestBody Payment payment) {
+        return paymentService.processPayment(payment);
     }
 }
