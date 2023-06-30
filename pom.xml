@@ -20,6 +20,7 @@
         <module>user-service</module>
         <module>restaurant-service</module>
         <module>order-service</module>
+        <module>payment-service</module>
     </modules>
 
     <properties>
