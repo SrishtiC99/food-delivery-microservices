@@ -34,4 +34,10 @@ public class FoodItemController {
         return foodItemService.updateFoodItem(foodItemDto);
     }
 
+    @PutMapping("/quantity")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateFoodItemQuantity(@RequestParam List<String> foodItemIds, @RequestParam List<Integer> orderQuantities) {
+        foodItemService.updateFoodItemQuantity(foodItemIds, orderQuantities);
+    }
+
 }

@@ -60,4 +60,20 @@ public class FoodItemService {
         item.setQuantity(foodItemDto.getQuantity());
         foodItemRepository.save(item);
     }
+
+    public void updateFoodItemQuantity(List<String> foodItemIds, List<Integer> orderQuantities) {
+        for(int i=0; i<foodItemIds.size(); i++) {
+            updateFoodItemQuantity(foodItemIds.get(i), orderQuantities.get(i));
+        }
+    }
+
+    private void updateFoodItemQuantity(String foodItemId, Integer quantity) {
+        Optional<FoodItem> foodItem = foodItemRepository.findById(foodItemId);
+        if(foodItem.isPresent()) {
+            FoodItem foodItem1 = foodItem.get();
+            foodItem1.setQuantity(foodItem1.getQuantity() - quantity);
+            foodItemRepository.save(foodItem1);
+        }
+    }
+
 }
