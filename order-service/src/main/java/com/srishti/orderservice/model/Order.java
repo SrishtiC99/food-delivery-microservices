@@ -24,6 +24,8 @@ public class Order {
     private BigDecimal totalAmount;
     private Long orderTime;
     private Address address;
+    private Long deliveryTime;
+    private OrderStatus orderStatus;
     private String paymentId;
     private String userId;
 }

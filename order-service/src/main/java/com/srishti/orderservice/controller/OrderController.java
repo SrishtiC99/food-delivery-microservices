@@ -2,6 +2,7 @@ package com.srishti.orderservice.controller;
 
 import com.srishti.orderservice.dto.OrderResponse;
 import com.srishti.orderservice.model.Order;
+import com.srishti.orderservice.model.OrderStatusUpdateMsg;
 import com.srishti.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,5 +19,12 @@ public class OrderController {
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse placeOrder(@RequestBody Order order) {
         return orderService.createOrder(order);
+    }
+
+    @PutMapping("/payment")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateOrderAfterPayment(@RequestParam String orderId,
+                                        @RequestBody OrderStatusUpdateMsg orderStatusUpdateMsg) {
+        orderService.updateOrderAfterPayment(orderId, orderStatusUpdateMsg);
     }
 }
