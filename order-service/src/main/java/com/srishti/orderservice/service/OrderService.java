@@ -2,10 +2,13 @@ package com.srishti.orderservice.service;
 
 import com.srishti.orderservice.dto.OrderItemDto;
 import com.srishti.orderservice.dto.OrderResponse;
+import com.srishti.orderservice.event.OrderPlacedNotification;
 import com.srishti.orderservice.model.*;
 import com.srishti.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -22,6 +25,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
+    private final KafkaTemplate<String, OrderPlacedNotification> kafkaTemplate;
     public OrderResponse createOrder(Order order) {
         order.setOrderTime(System.currentTimeMillis());
         order.setTotalAmount(BigDecimal.valueOf(order.getOrderItems().stream()
@@ -40,6 +44,18 @@ public class OrderService {
                                 .build())
                 .exchange()
                 .block();
+
+        // Send a notification to Restaurant Service to prepare this order
+        OrderPlacedNotification notification = OrderPlacedNotification.builder()
+                .orderId(order.getId())
+                .userId(order.getUserId())
+                .orderAddress(order.getAddress())
+                .foodItemIds(order.getOrderItems().stream()
+                        .map(OrderItem::getFoodItemId).toList())
+                .foodItemQuantities(order.getOrderItems().stream()
+                        .map(OrderItem::getQuantity).toList())
+                .build();
+        kafkaTemplate.send("order-rest-notification-topic", notification);
 
         return OrderResponse.builder()
                 .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemDto.builder()
