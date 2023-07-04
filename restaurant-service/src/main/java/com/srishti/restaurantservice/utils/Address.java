@@ -1,4 +1,4 @@
-package com.srishti.orderservice.model;
+package com.srishti.restaurantservice.utils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
