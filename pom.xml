@@ -23,6 +23,7 @@
         <module>payment-service</module>
         <module>discovery-server</module>
         <module>api-gateway</module>
+        <module>delivery-service</module>
     </modules>
 
     <properties>

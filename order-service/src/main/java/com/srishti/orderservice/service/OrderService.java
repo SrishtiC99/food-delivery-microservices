@@ -67,4 +67,12 @@ public class OrderService {
             orderRepository.save(order);
         }
     }
+
+    public void updateOrderStatus(String orderId, OrderStatus orderStatus) {
+        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+        if(optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            order.setOrderStatus(orderStatus);
+        }
+    }
 }

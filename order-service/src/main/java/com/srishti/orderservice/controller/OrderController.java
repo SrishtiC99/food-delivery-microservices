@@ -2,6 +2,7 @@ package com.srishti.orderservice.controller;
 
 import com.srishti.orderservice.dto.OrderResponse;
 import com.srishti.orderservice.model.Order;
+import com.srishti.orderservice.model.OrderStatus;
 import com.srishti.orderservice.model.OrderStatusUpdateMsg;
 import com.srishti.orderservice.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,11 @@ public class OrderController {
     public void updateOrderAfterPayment(@RequestParam String orderId,
                                         @RequestBody OrderStatusUpdateMsg orderStatusUpdateMsg) {
         orderService.updateOrderAfterPayment(orderId, orderStatusUpdateMsg);
+    }
+
+    @PutMapping("/status")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateOrderStatus(@RequestParam String orderId,  @RequestBody OrderStatus orderStatus) {
+        orderService.updateOrderStatus(orderId, orderStatus);
     }
 }
