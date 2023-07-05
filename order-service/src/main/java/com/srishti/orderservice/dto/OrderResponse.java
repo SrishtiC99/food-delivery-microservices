@@ -2,6 +2,7 @@ package com.srishti.orderservice.dto;
 
 import com.srishti.orderservice.model.Address;
 import com.srishti.orderservice.model.OrderItem;
+import com.srishti.orderservice.model.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,6 +22,7 @@ public class OrderResponse {
     private List<OrderItemDto> orderItems;
     private BigDecimal totalAmount;
     private Long orderTime;
+    private OrderStatus orderStatus;
     private Long expectedDeliveryTime;
     private Address address;
     private String paymentId;

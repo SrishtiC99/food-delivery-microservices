@@ -31,6 +31,7 @@ public class OrderService {
         order.setOrderTime(System.currentTimeMillis());
         order.setTotalAmount(BigDecimal.valueOf(order.getOrderItems().stream()
                 .mapToInt(e -> e.getPrice() * e.getQuantity()).sum()));
+        order.setOrderStatus(OrderStatus.PENDING);
         orderRepository.save(order);
 
         // call FoodItemService to update quantity of items after order is placed
@@ -46,18 +47,6 @@ public class OrderService {
                 .exchange()
                 .block();
 
-        // Send a notification to Restaurant Service to prepare this order
-        OrderPlacedNotification notification = OrderPlacedNotification.builder()
-                .orderId(order.getId())
-                .userId(order.getUserId())
-                .orderAddress(order.getAddress())
-                .foodItemIds(order.getOrderItems().stream()
-                        .map(OrderItem::getFoodItemId).toList())
-                .foodItemQuantities(order.getOrderItems().stream()
-                        .map(OrderItem::getQuantity).toList())
-                .build();
-        kafkaTemplate.send("order-rest-notification-topic", notification);
-
         return OrderResponse.builder()
                 .orderItems(order.getOrderItems().stream().map(orderItem -> OrderItemDto.builder()
                         .name(orderItem.getName())
@@ -66,8 +55,8 @@ public class OrderService {
                         .build()).toList())
                 .totalAmount(order.getTotalAmount())
                 .orderTime(order.getOrderTime())
+                .orderStatus(order.getOrderStatus())
                 .address(order.getAddress())
-                .paymentId(order.getPaymentId())
                 .build();
     }
 
@@ -80,12 +69,29 @@ public class OrderService {
                 order.setOrderStatus(OrderStatus.COMPLETED);
                 order.setDeliveryTime(order.getOrderTime() + 30*60*1000);
                 orderRepository.save(order);
+
+                // send notification to restaurant
+                sendNotificationToRestaurant(order);
             }
             else {
                 order.setOrderStatus(OrderStatus.CANCELLED);
                 orderRepository.save(order);
             }
         }
+    }
+
+    private void sendNotificationToRestaurant(Order order) {
+        // Send a notification to Restaurant Service to prepare this order
+        OrderPlacedNotification notification = OrderPlacedNotification.builder()
+                .orderId(order.getId())
+                .userId(order.getUserId())
+                .orderAddress(order.getAddress())
+                .foodItemIds(order.getOrderItems().stream()
+                        .map(OrderItem::getFoodItemId).toList())
+                .foodItemQuantities(order.getOrderItems().stream()
+                        .map(OrderItem::getQuantity).toList())
+                .build();
+        kafkaTemplate.send("order-rest-notification-topic", notification);
     }
 
     public void updateOrderStatus(String orderId, OrderStatus orderStatus) {
