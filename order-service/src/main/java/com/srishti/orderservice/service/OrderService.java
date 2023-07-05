@@ -3,11 +3,12 @@ package com.srishti.orderservice.service;
 import com.srishti.orderservice.dto.OrderItemDto;
 import com.srishti.orderservice.dto.OrderResponse;
 import com.srishti.orderservice.event.OrderPlacedNotification;
-import com.srishti.orderservice.model.*;
+import com.srishti.orderservice.model.Order;
+import com.srishti.orderservice.model.OrderItem;
+import com.srishti.orderservice.model.OrderStatus;
 import com.srishti.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,17 +71,20 @@ public class OrderService {
                 .build();
     }
 
-    public void updateOrderAfterPayment(String orderId, OrderStatusUpdateMsg orderStatusUpdateMsg) {
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
+    public void updateOrderAfterPayment(List<String> paymentInfo) {
+        Optional<Order> optionalOrder = orderRepository.findById(paymentInfo.get(1));
         if(optionalOrder.isPresent()) {
             Order order = optionalOrder.get();
-            order.setPaymentId(orderStatusUpdateMsg.getPaymentId());
-            if(orderStatusUpdateMsg.getPaymentStatus().equals(PaymentStatus.APPROVED)) {
+            if(paymentInfo.get(2).equals("SUCCESS")) {
+                order.setPaymentId(paymentInfo.get(0));
                 order.setOrderStatus(OrderStatus.COMPLETED);
+                order.setDeliveryTime(order.getOrderTime() + 30*60*1000);
+                orderRepository.save(order);
             }
-            else order.setOrderStatus(OrderStatus.CANCELLED);
-            order.setDeliveryTime(order.getOrderTime() + 30*60*1000);
-            orderRepository.save(order);
+            else {
+                order.setOrderStatus(OrderStatus.CANCELLED);
+                orderRepository.save(order);
+            }
         }
     }
 

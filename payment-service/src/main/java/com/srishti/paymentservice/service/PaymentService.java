@@ -1,15 +1,17 @@
 package com.srishti.paymentservice.service;
 
-import com.netflix.discovery.converters.Auto;
-import com.srishti.paymentservice.model.OrderStatusUpdateMsg;
 import com.srishti.paymentservice.model.Payment;
 import com.srishti.paymentservice.model.PaymentStatus;
 import com.srishti.paymentservice.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +21,8 @@ public class PaymentService {
     private PaymentRepository paymentRepository;
     @Autowired
     private WebClient.Builder webClientBuilder;
+    @Autowired
+    private final KafkaTemplate<String, List<String>> kafkaTemplate;
     public String processPayment(Payment payment) {
         //TODO: Check for credit card validity
         //TODO: call some 3rd party to handle payment request
@@ -27,15 +31,12 @@ public class PaymentService {
         payment = paymentRepository.save(payment);
 
         // send payment info to order-service
-        Payment finalPayment = payment;
-        webClientBuilder.build().put()
-                .uri("http://order-service/api/v1/order/payment",
-                        uriBuilder -> uriBuilder
-                                .queryParam("orderId", finalPayment.getOrderId())
-                                .build())
-                .bodyValue(new OrderStatusUpdateMsg(finalPayment.getId(), finalPayment.getPaymentStatus()))
-                .exchange()
-                .block();
+        //TODO: getting error for custom data object
+        List<String> paymentInfo = new ArrayList<>();
+        paymentInfo.add(payment.getId());
+        paymentInfo.add(payment.getOrderId());
+        paymentInfo.add("SUCCESS");
+        kafkaTemplate.send("payment-notification-topic", paymentInfo);
 
         return "payment was " + payment.getPaymentStatus();
     }
