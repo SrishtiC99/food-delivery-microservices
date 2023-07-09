@@ -3,6 +3,7 @@ package com.srishti.restaurantservice.service;
 import com.srishti.restaurantservice.dto.RestaurantRequest;
 import com.srishti.restaurantservice.dto.RestaurantResponse;
 import com.srishti.restaurantservice.model.FoodItem;
+import com.srishti.restaurantservice.model.OwnerInfo;
 import com.srishti.restaurantservice.model.Restaurant;
 import com.srishti.restaurantservice.repository.FoodItemRepository;
 import com.srishti.restaurantservice.repository.RestaurantRepository;
@@ -20,13 +21,18 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private FoodItemRepository foodItemRepository;
-    public String addRestaurant(RestaurantRequest request) {
+    public String addRestaurant(RestaurantRequest request, String username) {
+        // TODO: check if loggedInUser is a RESTAURANT_OWNER, fetch ownerInfo from auth-service
+
         Restaurant restaurant = Restaurant.builder()
                 .name(request.getName())
                 .description(request.getDescription())
                 .contactInfo(request.getContactInfo())
                 .address(request.getAddress())
                 .rating(request.getRating())
+                .owner(OwnerInfo.builder()
+                        .username(username)
+                        .build())
                 .build();
         restaurantRepository.save(restaurant);
         return "Restaurant with id: " + restaurant.getId() + "added successfully";

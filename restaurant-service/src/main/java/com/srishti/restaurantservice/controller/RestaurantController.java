@@ -16,8 +16,9 @@ public class RestaurantController {
     private final RestaurantService restaurantService;
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addRestaurant(@RequestBody RestaurantRequest request) {
-        return restaurantService.addRestaurant(request);
+    public String addRestaurant(@RequestBody RestaurantRequest request,
+                                @RequestHeader("loggedInUser") String username) {
+        return restaurantService.addRestaurant(request, username);
     }
     @GetMapping
     @ResponseStatus(HttpStatus.OK)

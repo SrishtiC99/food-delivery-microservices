@@ -18,8 +18,9 @@ public class FoodItemController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public String addFoodItem(@RequestBody FoodItemDto foodItemDto) {
-        return foodItemService.addFoodItem(foodItemDto);
+    public String addFoodItem(@RequestBody FoodItemDto foodItemDto,
+                              @RequestHeader("loggedInUser") String username) {
+        return foodItemService.addFoodItem(foodItemDto, username);
     }
 
     @GetMapping("/{restaurantId}")
@@ -30,8 +31,9 @@ public class FoodItemController {
 
     @PutMapping
     @ResponseStatus(HttpStatus.OK)
-    public String updateFoodItem(@RequestBody FoodItemDto foodItemDto) {
-        return foodItemService.updateFoodItem(foodItemDto);
+    public String updateFoodItem(@RequestBody FoodItemDto foodItemDto,
+                                 @RequestHeader("loggedInUser") String username) {
+        return foodItemService.updateFoodItem(foodItemDto, username);
     }
 
     @PutMapping("/quantity")

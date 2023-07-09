@@ -22,4 +22,5 @@ public class Restaurant {
     private Address address;
     private List<Long> contactInfo;
     private Double rating;
+    private OwnerInfo owner;
 }

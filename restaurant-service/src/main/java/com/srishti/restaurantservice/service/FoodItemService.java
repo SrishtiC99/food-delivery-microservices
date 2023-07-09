@@ -2,7 +2,9 @@ package com.srishti.restaurantservice.service;
 
 import com.srishti.restaurantservice.dto.FoodItemDto;
 import com.srishti.restaurantservice.model.FoodItem;
+import com.srishti.restaurantservice.model.Restaurant;
 import com.srishti.restaurantservice.repository.FoodItemRepository;
+import com.srishti.restaurantservice.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +18,15 @@ public class FoodItemService {
     @Autowired
     private FoodItemRepository foodItemRepository;
 
-    public String addFoodItem(FoodItemDto foodItemDto) {
+    @Autowired
+    private RestaurantRepository restaurantRepository;
+
+    public String addFoodItem(FoodItemDto foodItemDto, String username) {
+        // check if the loggedInUser is same as the restaurant Owner or not
+        Restaurant restaurant = restaurantRepository.findById(foodItemDto.getRestaurantId()).get();
+        if(!restaurant.getOwner().getUsername().equals(username)) {
+            return "Access Denied...You are not the OWNER of this restaurant";
+        }
         FoodItem foodItem = FoodItem.builder()
                 .name(foodItemDto.getName())
                 .description(foodItemDto.getDescription())
@@ -43,7 +53,12 @@ public class FoodItemService {
                         .build()).toList();
     }
 
-    public String updateFoodItem(FoodItemDto foodItemDto) {
+    public String updateFoodItem(FoodItemDto foodItemDto, String username) {
+        // check if the loggedInUser is same as the restaurant Owner or not
+        Restaurant restaurant = restaurantRepository.findById(foodItemDto.getRestaurantId()).get();
+        if(!restaurant.getOwner().getUsername().equals(username)) {
+            return "Access Denied...You are not the OWNER of this restaurant";
+        }
         Optional<FoodItem> foodItem = foodItemRepository.findById(foodItemDto.getId());
         if(foodItem.isPresent()) {
             update(foodItem.get(), foodItemDto);

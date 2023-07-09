@@ -17,6 +17,7 @@ public class UserController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponse getUser(@PathVariable("id") String id, @RequestHeader("loggedInUser") String username) {
+        // No authorization needed for Get User
         System.out.println("Get user with username: "+ username);
         return authService.getUser(id);
     }
@@ -24,7 +25,13 @@ public class UserController {
     @PutMapping()
     @ResponseStatus(HttpStatus.OK)
     public UserResponse updateUser(@RequestBody UserCredential user, @RequestHeader("loggedInUser") String username) {
-        System.out.println("Update user with username: "+ username);
+        // Only user can update his/her details check if the User in request is same as the loggedInUser or not
+        if(!user.getUsername().equals(username)) {
+            return UserResponse.builder()
+                    .responseCode(403)
+                    .msg("Access Denied")
+                    .build();
+        }
         return authService.updateUser(user);
     }
 }
