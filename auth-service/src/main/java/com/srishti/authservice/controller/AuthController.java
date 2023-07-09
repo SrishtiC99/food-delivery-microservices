@@ -47,15 +47,4 @@ public class AuthController {
         return "Token is valid";
     }
 
-    @GetMapping("/user/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse getUser(@PathVariable("id") String id) {
-        return authService.getUser(id);
-    }
-
-    @PutMapping
-    @ResponseStatus(HttpStatus.OK)
-    public UserResponse updateUser(@RequestBody UserCredential user) {
-        return authService.updateUser(user);
-    }
 }
