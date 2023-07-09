@@ -24,6 +24,7 @@
         <module>discovery-server</module>
         <module>api-gateway</module>
         <module>delivery-service</module>
+        <module>auth-service</module>
     </modules>
 
     <properties>
