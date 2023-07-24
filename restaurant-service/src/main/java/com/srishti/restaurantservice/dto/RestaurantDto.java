@@ -13,8 +13,12 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RestaurantResponse {
-    private RestaurantDto restaurantDto;
-    private Integer responseCode;
-    private String msg;
+public class RestaurantDto {
+    private String id;
+    private String name;
+    private String description;
+    private Address address;
+    private List<Long> contactInfo;
+    private Double rating;
+    private List<FoodItem> foodItems;
 }

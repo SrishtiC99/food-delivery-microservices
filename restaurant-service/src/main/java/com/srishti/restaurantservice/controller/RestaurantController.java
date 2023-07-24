@@ -1,11 +1,14 @@
 package com.srishti.restaurantservice.controller;
 
+import com.srishti.restaurantservice.dto.RestaurantDto;
 import com.srishti.restaurantservice.dto.RestaurantRequest;
 import com.srishti.restaurantservice.dto.RestaurantResponse;
 import com.srishti.restaurantservice.service.RestaurantService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 
@@ -22,7 +25,7 @@ public class RestaurantController {
     }
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<RestaurantResponse> getAllRestaurants() {
+    public List<RestaurantDto> getAllRestaurants() {
         return restaurantService.getAllRestaurants();
     }
 

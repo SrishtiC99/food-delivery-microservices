@@ -106,4 +106,9 @@ public class AuthService {
                 .phoneNumber(user.getPhoneNumber())
                 .build()).toList();
     }
+
+    public String getUserRole(String username) {
+        Optional<UserCredential> userCredential = userRepository.findByUsername(username);
+        return userCredential.map(credential -> credential.getUserRole().toString()).orElse(null);
+    }
 }

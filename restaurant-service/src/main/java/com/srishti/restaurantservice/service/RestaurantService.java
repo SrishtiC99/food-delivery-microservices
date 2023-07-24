@@ -1,5 +1,6 @@
 package com.srishti.restaurantservice.service;
 
+import com.srishti.restaurantservice.dto.RestaurantDto;
 import com.srishti.restaurantservice.dto.RestaurantRequest;
 import com.srishti.restaurantservice.dto.RestaurantResponse;
 import com.srishti.restaurantservice.model.FoodItem;
@@ -10,6 +11,8 @@ import com.srishti.restaurantservice.repository.RestaurantRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriBuilder;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,8 +24,27 @@ public class RestaurantService {
     private RestaurantRepository restaurantRepository;
     @Autowired
     private FoodItemRepository foodItemRepository;
+
+    @Autowired
+    private WebClient.Builder webClientBuilder;
+
+    private final String ROLE = "RESTAURANT_OWNER";
+
     public String addRestaurant(RestaurantRequest request, String username) {
-        // TODO: check if loggedInUser is a RESTAURANT_OWNER, fetch ownerInfo from auth-service
+        // check if loggedInUser is a RESTAURANT_OWNER, fetch ownerInfo from auth-service
+
+        String ownerRole = webClientBuilder.build().get()
+                .uri("http://auth-service/api/v1/user/role",
+                        UriBuilder::build)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        if(ownerRole == null) {
+            return "Error: Owner does not exist. Can't add this restaurant.";
+        }
+        else if(!ownerRole.equals(ROLE)) {
+            return "Error: Given owner is not a restaurant owner. Can't add this restaurant";
+        }
 
         Restaurant restaurant = Restaurant.builder()
                 .name(request.getName())
@@ -42,38 +64,36 @@ public class RestaurantService {
         Optional<Restaurant> restaurant = restaurantRepository.findById(id);
         RestaurantResponse restaurantResponse = new RestaurantResponse();
         if(restaurant.isPresent()) {
-            updateResponse(restaurant.get(), restaurantResponse);
+            return RestaurantResponse.builder()
+                    .restaurantDto(getRestaurantDto(restaurant.get()))
+                    .responseCode(200)
+                    .msg("Success")
+                    .build();
         }
-        return restaurantResponse;
+        return RestaurantResponse.builder()
+                .responseCode(404)
+                .msg("Restaurant not found with this id")
+                .build();
     }
 
-    private void updateResponse(Restaurant restaurant, RestaurantResponse restaurantResponse) {
-        restaurantResponse.setId(restaurant.getId());
-        restaurantResponse.setName(restaurant.getName());
-        restaurantResponse.setDescription(restaurant.getDescription());
-        restaurantResponse.setAddress(restaurant.getAddress());
-        restaurantResponse.setContactInfo(restaurant.getContactInfo());
-        restaurantResponse.setRating(restaurant.getRating());
-        List<FoodItem> foodItems = foodItemRepository.findByRestaurantId(restaurantResponse.getId());
-        restaurantResponse.setFoodItems(foodItems);
-    }
-
-    public List<RestaurantResponse> getAllRestaurants() {
+    public List<RestaurantDto> getAllRestaurants() {
         List<Restaurant> restaurants = restaurantRepository.findAll();
         return restaurants.stream()
-                .map(this::mapToResponse).toList();
+                .map(this::getRestaurantDto).toList();
     }
-    
-    private RestaurantResponse mapToResponse(Restaurant restaurant) {
-        RestaurantResponse restaurantResponse = new RestaurantResponse();
-        restaurantResponse.setId(restaurant.getId());
-        restaurantResponse.setName(restaurant.getName());
-        restaurantResponse.setDescription(restaurant.getDescription());
-        restaurantResponse.setAddress(restaurant.getAddress());
-        restaurantResponse.setContactInfo(restaurant.getContactInfo());
-        restaurantResponse.setRating(restaurant.getRating());
-        List<FoodItem> foodItems = foodItemRepository.findByRestaurantId(restaurantResponse.getId());
-        restaurantResponse.setFoodItems(foodItems);
-        return restaurantResponse;
+
+    private RestaurantDto getRestaurantDto(Restaurant restaurant) {
+        RestaurantDto dto = RestaurantDto.builder()
+                .id(restaurant.getId())
+                .name(restaurant.getName())
+                .description(restaurant.getDescription())
+                .address(restaurant.getAddress())
+                .contactInfo(restaurant.getContactInfo())
+                .rating(restaurant.getRating())
+                .build();
+        List<FoodItem> foodItems = foodItemRepository
+                .findByRestaurantId(restaurant.getId());
+        dto.setFoodItems(foodItems);
+        return dto;
     }
 }

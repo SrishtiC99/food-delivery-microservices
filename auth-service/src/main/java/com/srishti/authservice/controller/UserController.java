@@ -42,4 +42,9 @@ public class UserController {
     public List<DeliveryAgent> getDeliveryAgents() {
         return authService.getDeliveryAgents();
     }
+
+    @GetMapping("/role")
+    public String getUserRole(String username) {
+        return authService.getUserRole(username);
+    }
 }
