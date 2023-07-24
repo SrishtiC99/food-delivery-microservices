@@ -72,6 +72,8 @@ public class OrderService {
 
                 // send notification to restaurant
                 sendNotificationToRestaurant(order);
+
+                // send this order to delivery service
             }
             else {
                 order.setOrderStatus(OrderStatus.CANCELLED);

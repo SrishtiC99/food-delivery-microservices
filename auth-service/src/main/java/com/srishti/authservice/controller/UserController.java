@@ -1,11 +1,14 @@
 package com.srishti.authservice.controller;
 
 import com.srishti.authservice.dto.UserResponse;
+import com.srishti.authservice.model.DeliveryAgent;
 import com.srishti.authservice.model.UserCredential;
 import com.srishti.authservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -33,5 +36,10 @@ public class UserController {
                     .build();
         }
         return authService.updateUser(user);
+    }
+
+    @GetMapping("/delivery")
+    public List<DeliveryAgent> getDeliveryAgents() {
+        return authService.getDeliveryAgents();
     }
 }

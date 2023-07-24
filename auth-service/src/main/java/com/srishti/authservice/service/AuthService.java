@@ -2,13 +2,16 @@ package com.srishti.authservice.service;
 
 import com.srishti.authservice.dto.UserDto;
 import com.srishti.authservice.dto.UserResponse;
+import com.srishti.authservice.model.DeliveryAgent;
 import com.srishti.authservice.model.UserCredential;
+import com.srishti.authservice.model.UserRole;
 import com.srishti.authservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -91,5 +94,16 @@ public class AuthService {
                 .responseCode(200)
                 .msg("Success")
                 .build();
+    }
+
+    public List<DeliveryAgent> getDeliveryAgents() {
+        List<UserCredential> allUsers = userRepository.findAll();
+        allUsers.stream().filter(userCredential -> userCredential.getUserRole().equals(UserRole.DELIVERY_AGENT));
+
+        return allUsers.stream().map(user -> DeliveryAgent.builder()
+                .name(user.getFullName())
+                .address(user.getAddress())
+                .phoneNumber(user.getPhoneNumber())
+                .build()).toList();
     }
 }

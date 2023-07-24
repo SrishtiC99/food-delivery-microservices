@@ -19,4 +19,8 @@ public class DeliveryController {
     public String deliverOrder(@PathVariable String orderId) {
         return deliveryService.deliverOrder(orderId);
     }
+
+    public void callCustomer() {
+        deliveryService.callCustomer();
+    }
 }
